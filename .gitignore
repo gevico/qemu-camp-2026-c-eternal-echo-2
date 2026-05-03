@@ -39,6 +39,7 @@ exercises/*/*
 !exercises/*/Makefile
 tests/test_*
 !tests/test_*.c
+!tests/test_*.sh
 
 # 测试结果
 test_results_summary.json
