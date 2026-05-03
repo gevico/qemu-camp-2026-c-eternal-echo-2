@@ -66,7 +66,6 @@ static int host_is_little_endian(void) {
  * @note 如果文件端序与主机端序相同，直接复制即可
  */
 static void fix_ehdr_endian(const Elf64_Ehdr *src, Elf64_Ehdr *dst, int file_is_le, int host_is_le) {
-static void fix_ehdr_endian(const Elf64_Ehdr *src, Elf64_Ehdr *dst, int file_is_le, int host_is_le) {
     if (file_is_le == host_is_le) {
         *dst = *src;
         return;
