@@ -10,7 +10,7 @@ SRC = 24_prev_binary_tree.c simple_tree.c
 OBJ = $(SRC:.c=.o)
 DEP = $(OBJ:.o=.d)
 
-.PHONY: all clean run rebuild debug
+.PHONY: all clean run rebuild debug check
 
 all: $(TARGET)
 
@@ -30,5 +30,7 @@ rebuild: clean all
 
 debug: CFLAGS += -g -O0
 debug: clean all
+
+check: run
 
 -include $(DEP)

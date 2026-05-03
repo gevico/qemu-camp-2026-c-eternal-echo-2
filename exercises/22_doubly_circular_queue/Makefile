@@ -10,9 +10,12 @@ SRC = 22_doubly_circular_queue.c doubly_circular_queue.c
 OBJ = $(SRC:.c=.o)
 DEP = $(OBJ:.o=.d)
 
-.PHONY: all clean run rebuild debug
+.PHONY: all clean run rebuild debug check
 
 all: $(TARGET)
+
+check: $(TARGET)
+	./$(TARGET)
 
 $(TARGET): $(OBJ)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)

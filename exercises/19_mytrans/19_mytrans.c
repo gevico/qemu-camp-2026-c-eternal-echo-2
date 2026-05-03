@@ -42,8 +42,28 @@ int main() {
     }
 
     // 使用 strtok 按空格分割单词
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    char *word = strtok(line, " ");
+    while (word != NULL) {
+      // 清理单词中的标点符号
+      char clean_word[256] = {0};
+      int j = 0;
+      for (int i = 0; word[i] && j < sizeof(clean_word) - 1; i++) {
+        if (isalpha((unsigned char)word[i]) || word[i] == '\'') {
+          clean_word[j++] = tolower((unsigned char)word[i]);
+        }
+      }
+      clean_word[j] = '\0';
+
+      if (strlen(clean_word) > 0) {
+        const char *translation = hash_table_lookup(table, clean_word);
+        if (translation) {
+          printf("原文: %s\t翻译: %s\n", clean_word, translation);
+        } else {
+          printf("原文: %s\t未找到该单词的翻译。\n", clean_word);
+        }
+      }
+      word = strtok(NULL, " ");
+    }
   }
 
   free_hash_table(table);

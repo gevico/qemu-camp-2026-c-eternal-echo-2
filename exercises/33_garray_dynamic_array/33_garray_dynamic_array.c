@@ -28,20 +28,53 @@ typedef struct {
 
 /* 接口：初始化动态数组 */
 GArray* garray_init(size_t elem_size) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    GArray* arr = (GArray*)malloc(sizeof(GArray));
+    if (!arr) {
+        return NULL;
+    }
+
+    arr->data = malloc(GARRAY_INIT_CAP * elem_size);
+    if (!arr->data) {
+        free(arr);
+        return NULL;
+    }
+
+    arr->len = 0;
+    arr->capacity = GARRAY_INIT_CAP;
+    arr->elem_size = elem_size;
+    return arr;
 }
 
 /* 接口：追加单个元素，必要时扩容为原来的 2 倍 */
 void garray_append(GArray* arr, void* elem) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if (!arr || !elem) {
+        return;
+    }
+
+    // Check if we need to expand
+    if (arr->len >= arr->capacity) {
+        size_t new_capacity = arr->capacity * 2;
+        void* new_data = realloc(arr->data, new_capacity * arr->elem_size);
+        if (!new_data) {
+            return;  // Expansion failed
+        }
+        arr->data = new_data;
+        arr->capacity = new_capacity;
+    }
+
+    // Copy the element to the end of the array
+    void* dest = (char*)arr->data + (arr->len * arr->elem_size);
+    memcpy(dest, elem, arr->elem_size);
+    arr->len++;
 }
 
 /* 接口：释放动态数组 */
 void garray_free(GArray* arr) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if (!arr) {
+        return;
+    }
+    free(arr->data);
+    free(arr);
 }
 
 int main(void) {

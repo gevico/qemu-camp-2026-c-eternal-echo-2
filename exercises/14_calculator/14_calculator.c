@@ -3,11 +3,33 @@
 // TODO：定义四则运算规则
 // hint：似乎除数有一些特殊情况，需要处理
 
-// I AM NOT DONE
-int add(int a, int b) {  }
-int subtract(int a, int b) {  }
-int multiply(int a, int b) {  }
-int divide(int a, int b) {  }
+/**
+ * @brief 加法运算。
+ */
+int add(int a, int b) { return a + b; }
+
+/**
+ * @brief 减法运算。
+ */
+int subtract(int a, int b) { return a - b; }
+
+/**
+ * @brief 乘法运算。
+ */
+int multiply(int a, int b) { return a * b; }
+
+/**
+ * @brief 除法运算，处理除数为 0 的错误场景。
+ *
+ * @note 当 b == 0 时打印错误并返回 0，避免程序崩溃。
+ */
+int divide(int a, int b) {
+    if (b == 0) {
+        printf("错误：除数不能为零\n");
+        return 0;
+    }
+    return a / b;
+}
 
 
 
@@ -15,9 +37,8 @@ int main() {
     int a, b;
     char op;
 
-    // TODO
-    // hint:这是一个函数指针数组，在这之前应该先定义指针
-    int ()() = {add, subtract, multiply, divide};
+    // 使用函数指针数组将运算符映射到具体函数实现
+    int (*operations[])(int, int) = {add, subtract, multiply, divide};
 
     char operators[] = "+-*/";
 

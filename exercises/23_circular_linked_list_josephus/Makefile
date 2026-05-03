@@ -10,9 +10,12 @@ SRC = 23_circular_linked_list_josephus.c circular_linked_list.c
 OBJ = $(SRC:.c=.o)
 DEP = $(OBJ:.o=.d)
 
-.PHONY: all clean run rebuild debug
+.PHONY: all clean check
 
 all: $(TARGET)
+
+check: $(TARGET)
+	./$(TARGET)
 
 $(TARGET): $(OBJ)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)

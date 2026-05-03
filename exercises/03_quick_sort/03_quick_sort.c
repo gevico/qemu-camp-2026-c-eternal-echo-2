@@ -12,9 +12,52 @@ typedef struct {
 
 Student students[MAX_STUDENTS];
 
+/**
+ * @brief 对全局 students 数组区间执行快速排序（按成绩从高到低）。
+ *
+ * 使用双指针分区：选取区间中点分数作为基准值 pivot，
+ * 左指针寻找比 pivot 小的元素，右指针寻找比 pivot 大的元素，
+ * 当两者都找到后交换，以保证左侧分数不低于 pivot、右侧分数不高于 pivot。
+ * 分区完成后递归处理左右子区间。
+ *
+ * @param left 待排序区间左边界（包含）。
+ * @param right 待排序区间右边界（包含）。
+ *
+ * @note 当 left >= right 时，区间长度不超过 1，直接返回。
+ */
 void quick_sort(int left, int right) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if (left >= right) {
+        return;
+    }
+
+    int i = left;
+    int j = right;
+    int pivot = students[left + (right - left) / 2].score;
+
+    // 分区：把高分放到左侧，低分放到右侧
+    while (i <= j) {
+        while (students[i].score > pivot) {
+            i++;
+        }
+        while (students[j].score < pivot) {
+            j--;
+        }
+
+        if (i <= j) {
+            Student tmp = students[i];
+            students[i] = students[j];
+            students[j] = tmp;
+            i++;
+            j--;
+        }
+    }
+
+    if (left < j) {
+        quick_sort(left, j);
+    }
+    if (i < right) {
+        quick_sort(i, right);
+    }
 }
 
 int main(void) {

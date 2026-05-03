@@ -1,11 +1,33 @@
+/*
+ * === LRU 缓存淘汰算法 ===
+ *
+ * LRU (Least Recently Used) 是一种常用的缓存淘汰策略
+ * 核心思想：当缓存满时，淘汰最久未被访问的数据
+ *
+ * 数据结构组合：哈希表 + 双向链表
+ * - 哈希表：O(1) 时间查找键值对
+ * - 双向链表：维护访问顺序，头部是最近使用，尾部是最久未使用
+ *
+ * 操作复杂度：
+ * - get(k): O(1) - 哈希表查找 + 链表节点移动
+ * - put(k,v): O(1) - 哈希表插入 + 链表节点插入/删除
+ *
+ * 工作原理：
+ * 1. 访问 (get) 数据时，将对应节点移到链表头部
+ * 2. 插入 (put) 数据时，新节点直接放到链表头部
+ * 3. 容量满时，删除链表尾部节点 (最久未使用)
+ *
+ * 链表示意图：
+ *   [MRU] <-> [节点2] <-> [节点3] <-> [LRU]
+ *    最近使用                          最久未使用
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 /*
- * 16 LRU 缓存淘汰算法（哈希表 + 双向链表）
- *  - put(k,v)、get(k) 均为 O(1)
- *  - 容量满时淘汰最久未使用（LRU）的元素
+ * 数据结构定义
  */
 
 typedef struct LRUNode {
@@ -31,55 +53,218 @@ typedef struct {
     HashEntry** buckets;
 } LRUCache;
 
+/**
+ * 整数哈希函数
+ *
+ * @param key 要哈希的整数键
+ * @return 哈希值 (非负整数)
+ */
 static unsigned hash_int(int key) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    return (unsigned)(key < 0 ? -key : key);
 }
 
+/**
+ * 在哈希表中查找键
+ *
+ * @param c LRU 缓存指针
+ * @param key 要查找的键
+ * @param pprev_next 输出参数，返回找到节点的父指针的地址
+ * @return 找到的哈希表项指针，未找到返回 NULL
+ *
+ * @note pprev_next 用于删除操作，可以 O(1) 时间从链表中移除节点
+ */
 static HashEntry* hash_find(LRUCache* c, int key, HashEntry*** pprev_next) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    unsigned idx = hash_int(key) % c->bucket_count;
+    HashEntry** pprev = &c->buckets[idx];
+    HashEntry* entry = *pprev;
+
+    while (entry) {
+        if (entry->key == key) {
+            *pprev_next = pprev;
+            return entry;
+        }
+        pprev = &entry->next;
+        entry = entry->next;
+    }
+
+    *pprev_next = pprev;
+    return NULL;
 }
 
+/**
+ * 将节点添加到链表头部 (标记为最近使用)
+ *
+ * @param c LRU 缓存指针
+ * @param node 要添加的节点
+ */
 static void list_add_to_head(LRUCache* c, LRUNode* node) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    node->prev = NULL;
+    node->next = c->head;
+
+    if (c->head) {
+        c->head->prev = node;
+    }
+    c->head = node;
+
+    if (!c->tail) {
+        c->tail = node;
+    }
 }
 
+/**
+ * 从链表中移除节点
+ *
+ * @param c LRU 缓存指针
+ * @param node 要移除的节点
+ */
 static void list_remove(LRUCache* c, LRUNode* node) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if (node->prev) {
+        node->prev->next = node->next;
+    } else {
+        c->head = node->next;
+    }
+
+    if (node->next) {
+        node->next->prev = node->prev;
+    } else {
+        c->tail = node->prev;
+    }
 }
 
+/**
+ * 将节点移动到链表头部 (标记为最近使用)
+ *
+ * @param c LRU 缓存指针
+ * @param node 要移动的节点
+ */
 static void list_move_to_head(LRUCache* c, LRUNode* node) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    list_remove(c, node);
+    list_add_to_head(c, node);
 }
 
+/**
+ * 弹出链表尾部节点 (最久未使用)
+ *
+ * @param c LRU 缓存指针
+ * @return 被弹出的节点指针，链表为空时返回 NULL
+ */
 static LRUNode* list_pop_tail(LRUCache* c) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if (!c->tail) {
+        return NULL;
+    }
+
+    LRUNode* node = c->tail;
+    list_remove(c, node);
+    return node;
 }
 
 /* LRU 接口实现 */
 static LRUCache* lru_create(int capacity) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    LRUCache* c = (LRUCache*)calloc(1, sizeof(LRUCache));
+    if (!c) {
+        return NULL;
+    }
+
+    c->capacity = capacity;
+    c->size = 0;
+    c->head = NULL;
+    c->tail = NULL;
+    c->bucket_count = 16;
+
+    c->buckets = (HashEntry**)calloc(c->bucket_count, sizeof(HashEntry*));
+    if (!c->buckets) {
+        free(c);
+        return NULL;
+    }
+
+    return c;
 }
 
 static void lru_free(LRUCache* c) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if (!c) {
+        return;
+    }
+
+    LRUNode* node = c->head;
+    while (node) {
+        LRUNode* next = node->next;
+        free(node);
+        node = next;
+    }
+
+    for (size_t i = 0; i < c->bucket_count; i++) {
+        HashEntry* entry = c->buckets[i];
+        while (entry) {
+            HashEntry* next = entry->next;
+            free(entry);
+            entry = next;
+        }
+    }
+
+    free(c->buckets);
+    free(c);
 }
 
 static int lru_get(LRUCache* c, int key, int* out_value) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    HashEntry** pprev;
+    HashEntry* entry = hash_find(c, key, &pprev);
+
+    if (!entry) {
+        return 0;
+    }
+
+    list_move_to_head(c, entry->node);
+    *out_value = entry->node->value;
+    return 1;
 }
 
 static void lru_put(LRUCache* c, int key, int value) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    HashEntry** pprev;
+    HashEntry* entry = hash_find(c, key, &pprev);
+
+    if (entry) {
+        entry->node->value = value;
+        list_move_to_head(c, entry->node);
+        return;
+    }
+
+    LRUNode* node = (LRUNode*)malloc(sizeof(LRUNode));
+    if (!node) {
+        return;
+    }
+
+    node->key = key;
+    node->value = value;
+
+    if (c->size >= c->capacity) {
+        LRUNode* lru = list_pop_tail(c);
+        if (lru) {
+            HashEntry** lru_pprev;
+            HashEntry* lru_entry = hash_find(c, lru->key, &lru_pprev);
+            if (lru_entry) {
+                *lru_pprev = lru_entry->next;
+                free(lru_entry);
+            }
+            free(lru);
+            c->size--;
+        }
+    }
+
+    list_add_to_head(c, node);
+    c->size++;
+
+    HashEntry* new_entry = (HashEntry*)malloc(sizeof(HashEntry));
+    if (!new_entry) {
+        list_remove(c, node);
+        free(node);
+        c->size--;
+        return;
+    }
+
+    new_entry->key = key;
+    new_entry->node = node;
+    new_entry->next = c->buckets[hash_int(key) % c->bucket_count];
+    c->buckets[hash_int(key) % c->bucket_count] = new_entry;
 }
 
 /* 打印当前缓存内容（从头到尾） */

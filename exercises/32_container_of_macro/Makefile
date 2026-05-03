@@ -10,7 +10,7 @@ SRC = 32_container_of_macro.c
 OBJ = $(SRC:.c=.o)
 DEP = $(OBJ:.o=.d)
 
-.PHONY: all clean run rebuild debug
+.PHONY: all clean run rebuild debug check
 
 all: $(TARGET)
 
@@ -30,5 +30,8 @@ rebuild: clean all
 
 debug: CFLAGS += -g -O0
 debug: clean all
+
+check: all
+	@./$(TARGET)
 
 -include $(DEP)

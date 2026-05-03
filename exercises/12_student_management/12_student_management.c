@@ -19,8 +19,31 @@ int main() {
     
     for (int i = 0; i < 3; i++) 
     {
-	    // TODO: 在这里添加你的代码
-        // I AM NOT DONE
+        /**
+         * 每次循环动态申请一个 Student 节点，
+         * 然后从文件读取“学号 姓名 年龄”三个字段填充结构体。
+         */
+        students[i] = (Student *)malloc(sizeof(Student));
+        if (students[i] == NULL) {
+            printf("内存分配失败\n");
+            fclose(file);
+            for (int j = 0; j < i; j++) {
+                free(students[j]);
+            }
+            return 1;
+        }
+
+        if (fscanf(file, "%19s %49s %d",
+                   students[i]->id,
+                   students[i]->name,
+                   &students[i]->age) != 3) {
+            printf("文件数据格式错误\n");
+            fclose(file);
+            for (int j = 0; j <= i; j++) {
+                free(students[j]);
+            }
+            return 1;
+        }
     }
     fclose(file);
     

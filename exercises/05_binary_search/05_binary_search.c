@@ -14,9 +14,33 @@ typedef struct {
 Student students[MAX_STUDENTS];
 int n;
 
+/**
+ * @brief 在按姓名字典序有序的 students 数组中进行折半查找。
+ *
+ * 该函数基于 strcmp 比较 target_name 与中间元素姓名，
+ * 每次将搜索区间缩小一半，直到找到目标或区间为空。
+ *
+ * @param target_name 需要查找的学生姓名（以 '\0' 结尾）。
+ * @return int 找到返回下标，未找到返回 -1。
+ */
 int binary_search(const char *target_name) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    int left = 0;
+    int right = n - 1;
+
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        int cmp = strcmp(students[mid].name, target_name);
+
+        if (cmp == 0) {
+            return mid;
+        } else if (cmp < 0) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+
+    return -1;
 }
 
 int main(void) {

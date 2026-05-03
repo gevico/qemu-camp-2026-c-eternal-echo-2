@@ -11,7 +11,7 @@ SRC = 30_debug_print.c
 OBJ = $(SRC:.c=.o)
 DEP = $(OBJ:.o=.d)
 
-.PHONY: all clean run rebuild debug
+.PHONY: all clean run rebuild debug check
 
 CPPFLAGS += -DDEBUG_LEVEL=$(DEBUG_LEVEL)
 
@@ -33,5 +33,7 @@ rebuild: clean all
 
 debug: CFLAGS += -g -O0
 debug: clean all
+
+check: run
 
 -include $(DEP)

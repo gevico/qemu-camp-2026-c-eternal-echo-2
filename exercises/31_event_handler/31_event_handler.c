@@ -27,16 +27,19 @@ static void* g_callback_args[EVENT_MAX] = {0};
  * 注册事件函数：为指定事件类型设置回调与参数
  */
 void register_event(enum EVENT_TYPE type, void (*callback)(void*), void* arg) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if (type >= 0 && type < EVENT_MAX) {
+        g_callbacks[type] = callback;
+        g_callback_args[type] = arg;
+    }
 }
 
 /*
  * 触发事件函数：若已注册回调则调用
  */
 void trigger_event(enum EVENT_TYPE type) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if (type >= 0 && type < EVENT_MAX && g_callbacks[type] != NULL) {
+        g_callbacks[type](g_callback_args[type]);
+    }
 }
 
 /*
